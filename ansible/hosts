@@ -1,0 +1,2 @@
+[docker]
+localhost:2222 ansible_user=root

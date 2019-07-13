@@ -1,0 +1,14 @@
+- name: Clone the repository
+  git:
+    repo: https://github.com/wgrcunha/tdc-2019-sp.git
+    dest: /tdc
+    update: yes
+  register: build_update
+
+- name: Build image
+  docker_image:
+    name: tdc2019
+    build:
+      path: /tdc/docker
+      pull: no
+    source: build

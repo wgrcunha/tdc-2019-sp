@@ -1,0 +1,22 @@
+---
+- name: Add repo key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+- name: Adiciona o repo do docker
+  apt_repository:
+    repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+    state: present
+- name: Install a required packages
+  package:
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - docker-ce
+    - docker-ce-cli
+    - containerd.io
+    - python3-docker
+- name: Create a sample container
+  docker_container:
+    name: sample
+    image: hello-world

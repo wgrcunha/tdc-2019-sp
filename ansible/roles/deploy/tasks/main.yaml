@@ -1,0 +1,22 @@
+- name: Create /redis folder
+  file:
+    name: /redis
+    state: directory
+
+- name: Run a redis container with persistent data
+  docker_container:
+    name: redis
+    image: redis
+    volumes:
+      - /redis:/data
+
+- name: Run our app container
+  docker_container:
+    name: tdc
+    image: tdc2019
+    ports:
+      - "8888:80"
+    links:
+      - "redis:redis"
+    env:
+      NAME: tdc

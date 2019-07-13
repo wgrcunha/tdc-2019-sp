@@ -1,0 +1,34 @@
+- name: Clean containers
+  docker_container:
+    name: "{{ item }}"
+    state: absent
+  with_items:
+    - tdc
+    - redis
+    - sample
+
+- name: Clean image
+  docker_image:
+    name: "{{ item }}"
+    state: absent
+  with_items:
+    - redis
+    - python
+    - hello-world
+    - tdc2019
+
+- name: Remove packages
+  package:
+    name: "{{ packages }}"
+    state: absent
+  vars:
+    packages:
+    - docker-ce
+    - docker-ce-cli
+    - containerd.io
+    - python3-docker
+
+- name: Remove docker repo
+  apt_repository:
+    repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+    state: absent
