@@ -1,0 +1,61 @@
+- name: Create /redis folder
+  file:
+    name: /redis
+    state: directory
+
+- name: Create /certs folder
+  file:
+    name: /certs
+    state: directory
+
+- name: create acme json
+  copy:
+    content: ""
+    dest: /certs/acme.json
+    force: no
+    mode: 0600
+
+- name: Run a redis container with persistent data
+  docker_container:
+    name: redis
+    image: redis
+    volumes:
+      - /redis:/data
+
+- name: Run our app container
+  docker_container:
+    name: tdc
+    image: wgrcunha/tdc2019
+    links:
+      - "redis:redis"
+    env:
+      NAME: tdc
+    labels:
+      traefik.domain: freire.rocks
+
+- name: Run the traefik LB
+  docker_container:
+    name: traefik
+    image: traefik
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "/certs/acme.json:/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    command:
+      - traefik
+      - --accesslog
+      - --api
+      - --docker
+      - --acme
+      - --acme.email=wgrcunha@gmail.com
+      - --acme.entrypoint=https
+      - --acme.onhostrule=true
+      - --acme.httpchallenge=true
+      - --acme.httpchallenge.entrypoint=http
+      - --acme.storage=/acme.json
+      - --defaultEntryPoints=https,http
+      - --entrypoints="Name:https Address::443 TLS"
+      - --entrypoints="Name:http Address::80"

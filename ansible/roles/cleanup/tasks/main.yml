@@ -6,6 +6,7 @@
     - tdc
     - redis
     - sample
+    - traefik
 
 - name: Clean image
   docker_image:
